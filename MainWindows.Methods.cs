@@ -12,6 +12,10 @@ namespace PlaylistToMp3__WF_
 {
     public partial class MainWindow : Form
     {
+        /// <summary>
+        /// Logs the specified arguments.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
         private void log(params string[] args)
         {
             foreach (string log in args)

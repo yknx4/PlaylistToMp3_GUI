@@ -37,8 +37,8 @@ namespace PlaylistToMp3__WF_
             //OpenFileDialog m_open = new OpenFileDialog();
             //m_open.Multiselect = false;
             m_open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-            m_open.ShowDialog();
-            if (m_open.FileName != string.Empty)
+            
+            if (m_open.ShowDialog()==DialogResult.OK && m_open.FileName != string.Empty)
             {
                 LoadPlaylist(m_open.FileName);
             }
@@ -152,6 +152,16 @@ namespace PlaylistToMp3__WF_
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            PlaylistLoader.ErrorThrown += (EventArg) =>
+            {
+                log("Playlist loader error: "+EventArg.Error);
+                tslblStatus.Text = "Playlist loader error";
+            };
+            PlaylistLoader.Log += (EventArg) =>
+            {
+                log("Playlist loader message: " + EventArg.Message);
+                
+            };
 #if (DEBUG)
             string log_path = DateTime.Now.Year + "." + DateTime.Now.Ticks + " log.txt";
             File.Create(log_path).Close();
