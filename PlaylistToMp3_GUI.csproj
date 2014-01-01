@@ -86,6 +86,9 @@
     <Compile Include="MainWindow.Properties.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="MainWindows.Methods.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainWindow.resx">

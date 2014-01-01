@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Program_Settings = PlaylistToMp3__WF_.Properties.Settings;
 
 namespace PlaylistToMp3__WF_
 {
