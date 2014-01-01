@@ -1,5 +1,4 @@
-﻿using Equin.ApplicationFramework;
-using ffmpeg_convert;
+﻿using ffmpeg_convert;
 using PlaylistToMp3_DLL;
 using System;
 using System.Collections.Generic;
@@ -28,8 +27,6 @@ namespace PlaylistToMp3__WF_
         private StreamWriter logfile;
 #endif
 
-        
-
         private int numberOfThreads = Environment.ProcessorCount * 2;
         private BindingList<MusicFile> playlist;
         private int thread_no = Environment.ProcessorCount;
@@ -47,10 +44,6 @@ namespace PlaylistToMp3__WF_
             }
         }
 
-       
-
-        
-
         private void btnDeleteSelected_Click(object sender, EventArgs e)
         {
             if (dtgrPlaylist.SelectedRows.Count == 1)
@@ -67,8 +60,6 @@ namespace PlaylistToMp3__WF_
             BeginRefreshDatagrid();
             Convert();
         }
-
-        
 
         private void runNewConversion(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -218,8 +209,6 @@ namespace PlaylistToMp3__WF_
             }
             log("Conversion minimum bitrate set to: " + source.SelectedValue);
         }
-
-        
 
         private void whenClosing(object sender, FormClosingEventArgs e)
         {

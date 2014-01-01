@@ -5,9 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Program_Settings = PlaylistToMp3__WF_.Properties.Settings;
 
@@ -28,6 +25,7 @@ namespace PlaylistToMp3__WF_
                 txtLog.AppendText(full_log);
             }
         }
+
         private void LoadPlaylist(string inputFileName)
         {
             log(inputFileName + " playlist selected.");
@@ -40,6 +38,7 @@ namespace PlaylistToMp3__WF_
             log(playlist.Count + " song loaded.");
             PlaylistPath = new FileInfo(inputFileName);
         }
+
         private void BeginRefreshDatagrid()
         {
             tmr.Enabled = true;
@@ -155,6 +154,7 @@ namespace PlaylistToMp3__WF_
                 if (threads < thread_no) startNewConversion();
             }
         }
+
         private void SaveSettings()
         {
             Program_Settings.Default.Save();
