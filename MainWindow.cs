@@ -36,13 +36,10 @@ namespace PlaylistToMp3__WF_
         {
             //OpenFileDialog m_open = new OpenFileDialog();
             //m_open.Multiselect = false;
-            m_open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-            
-            if (m_open.ShowDialog()==DialogResult.OK && m_open.FileName != string.Empty)
-            {
-                LoadPlaylist(m_open.FileName);
-            }
+            openPlaylistDialog();
+
         }
+
 
         private void btnDeleteSelected_Click(object sender, EventArgs e)
         {
@@ -66,15 +63,7 @@ namespace PlaylistToMp3__WF_
             startNewConversion();
         }
 
-        private void startNewConversion()
-        {
-            if (Conversions.Count != 0)
-            {
-                var task = Conversions.Dequeue();
-                task.Item1.RunWorkerAsync(task.Item2);
-                log("Conversion of " + task.Item2.Input.ShortFileName + " started.");
-            }
-        }
+
 
         private void source_Converted(object sender, EventArgs e)
         {
@@ -104,13 +93,15 @@ namespace PlaylistToMp3__WF_
         private void button1_Click(object sender, EventArgs e)
         {
             string fPath = txtOuput.Text;
-            folderDialog_output.ShowDialog();
-            txtOuput.Text = folderDialog_output.SelectedPath;
-            if (txtOuput.Text != fPath)
+            if (folderDialog_output.ShowDialog() == DialogResult.OK)
             {
-                log("Path changed to: " + txtOuput.Text);
-                Program_Settings.Default.OutputPath = txtOuput.Text;
-                SaveSettings();
+                txtOuput.Text = folderDialog_output.SelectedPath;
+                if (txtOuput.Text != fPath)
+                {
+                    log("Path changed to: " + txtOuput.Text);
+                    Program_Settings.Default.OutputPath = txtOuput.Text;
+                    SaveSettings();
+                }
             }
         }
 
@@ -119,6 +110,10 @@ namespace PlaylistToMp3__WF_
             if (PlaylistPath != null && PlaylistPath.Exists)
             {
                 LoadPlaylist(PlaylistPath.FullName);
+            }
+            else
+            {
+                openPlaylistDialog();
             }
         }
 
@@ -154,13 +149,21 @@ namespace PlaylistToMp3__WF_
         {
             PlaylistLoader.ErrorThrown += (EventArg) =>
             {
-                log("Playlist loader error: "+EventArg.Error);
-                tslblStatus.Text = "Playlist loader error";
+                log("Playlist loader error: " + EventArg.Error);
+                //Dirty hack to cross thread execution
+                if (txtLog.InvokeRequired)
+                {
+                    txtLog.BeginInvoke((MethodInvoker)delegate()
+                    {
+                        tslblStatus.Text = "Playlist loader error";
+                    });
+                }
+                else tslblStatus.Text = "Playlist loader error";
             };
             PlaylistLoader.Log += (EventArg) =>
             {
                 log("Playlist loader message: " + EventArg.Message);
-                
+
             };
 #if (DEBUG)
             string log_path = DateTime.Now.Year + "." + DateTime.Now.Ticks + " log.txt";

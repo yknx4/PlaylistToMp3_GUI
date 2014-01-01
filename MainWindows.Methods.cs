@@ -26,21 +26,45 @@ namespace PlaylistToMp3__WF_
                 logfile.AutoFlush = true;
 #endif
 
-                txtLog.AppendText(full_log);
+                if (txtLog.InvokeRequired)
+                {
+                    txtLog.BeginInvoke((MethodInvoker)delegate()
+                    {
+                        txtLog.AppendText(full_log);
+                    });
+                }
+                else txtLog.AppendText(full_log);
             }
         }
 
         private void LoadPlaylist(string inputFileName)
         {
             log(inputFileName + " playlist selected.");
-            playlist = new BindingList<MusicFile>(PlaylistToMp3_DLL.PlaylistLoader.GetPlaylist(inputFileName));
-            log(inputFileName + " playlist loaded.");
-            BindingListView<MusicFile> view = new BindingListView<MusicFile>(playlist);
-            dtgrPlaylist.DataSource = view;
+            BackgroundWorker mPlaylistLoader = new BackgroundWorker();
+            mPlaylistLoader.DoWork += (sender, EventArgs) =>
+            {
+                EventArgs.Result = PlaylistToMp3_DLL.PlaylistLoader.GetPlaylist(inputFileName);
+            };
+            mPlaylistLoader.RunWorkerCompleted += (sender, EventArgs) => {
+                if (EventArgs.Result != null)
+                {
+                    var result = (List<MusicFile>)EventArgs.Result;
+                    playlist = new BindingList<MusicFile>(result);
+                    log(inputFileName + " playlist loaded.");
+                    BindingListView<MusicFile> view = new BindingListView<MusicFile>(playlist);
+                    dtgrPlaylist.DataSource = view;
 
-            tslblStatus.Text = playlist.Count + " song loaded.";
-            log(playlist.Count + " song loaded.");
-            PlaylistPath = new FileInfo(inputFileName);
+                    tslblStatus.Text = playlist.Count + " song loaded.";
+                    log(playlist.Count + " song loaded.");
+                    PlaylistPath = new FileInfo(inputFileName);
+                }
+                else
+                {
+                    tslblStatus.Text = inputFileName + " failed to load loaded.";
+                    log(inputFileName + " failed to load loaded.");
+                }
+            };
+            mPlaylistLoader.RunWorkerAsync();
         }
 
         private void BeginRefreshDatagrid()
@@ -162,6 +186,24 @@ namespace PlaylistToMp3__WF_
         private void SaveSettings()
         {
             Program_Settings.Default.Save();
+        }
+        private void startNewConversion()
+        {
+            if (Conversions.Count != 0)
+            {
+                var task = Conversions.Dequeue();
+                task.Item1.RunWorkerAsync(task.Item2);
+                log("Conversion of " + task.Item2.Input.ShortFileName + " started.");
+            }
+        }
+        private void openPlaylistDialog()
+        {
+            m_open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+
+            if (m_open.ShowDialog() == DialogResult.OK && m_open.FileName != string.Empty)
+            {
+                LoadPlaylist(m_open.FileName);
+            }
         }
     }
 }

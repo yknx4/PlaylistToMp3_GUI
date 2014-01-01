@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PlaylistToMp3 (WF)")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Playlist to mp3")]
+[assembly: AssemblyDescription("GUI Tool to convert m3u playlist into mp3.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Yknx Sfotware")]
 [assembly: AssemblyProduct("PlaylistToMp3 (WF)")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyCopyright("Copyright ©  2013 - 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
