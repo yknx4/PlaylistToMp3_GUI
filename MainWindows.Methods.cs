@@ -16,6 +16,7 @@ namespace PlaylistToMp3__WF_
         /// Logs the specified arguments.
         /// </summary>
         /// <param name="args">The arguments.</param>
+        /// 
         private void log(params string[] args)
         {
             foreach (string log in args)
@@ -36,7 +37,18 @@ namespace PlaylistToMp3__WF_
                 else txtLog.AppendText(full_log);
             }
         }
-
+        private void setStatus(string text)
+        {
+            //Dirty hack way
+            if (txtLog.InvokeRequired)
+            {
+                txtLog.BeginInvoke((MethodInvoker)delegate()
+                {
+                    tslblStatus.Text = text;
+                });
+            }
+            else tslblStatus.Text = text;
+        }
         private void LoadPlaylist(string inputFileName)
         {
             log(inputFileName + " playlist selected.");
@@ -92,15 +104,13 @@ namespace PlaylistToMp3__WF_
             {
                 isVariable = rdbVBR.Checked,
                 Preset = (int)cmbPresets.SelectedItem,
-                MinBitrate = (int)cmbMinBR.SelectedItem
+                //MinBitrate = (int)cmbMinBR.SelectedItem
             };
             log("FFmpeg mp3 conversion args:" +
                 Environment.NewLine +
-                "VBR: " + mp3Args.isVariable +
+                "         VBR: " + mp3Args.isVariable +
                 Environment.NewLine +
-                "Preset: " + mp3Args.Preset +
-                Environment.NewLine +
-                "Minimum Bitrate: " + mp3Args.MinBitrate);
+                "         Preset: " + mp3Args.Preset );
             foreach (MusicFile source in playlist)
             {
                 source.resetEvents();
@@ -112,7 +122,8 @@ namespace PlaylistToMp3__WF_
                 string outputFileName = Extensions.CombineWithValidate(source.Artist, source.Album, source.FileInformation.Name.Replace(source.FileInformation.Extension, "") + ".mp3");
 #else
                 //string outputFileName = source.Artist+"\\"+source.Album+"\\" + source.FileInformation.Name.Replace(source.FileInformation.Extension,"") + ".mp3";
-                string outputFileName = Extensions.CombineWithValidate("output",source.Artist , source.Album , source.FileInformation.Name.Replace(source.FileInformation.Extension, "") + ".mp3");
+                //string outputFileName = Extensions.CombineWithValidate("output",source.Artist , source.Album , source.FileInformation.Name.Replace(source.FileInformation.Extension, "") + ".mp3");
+                string outputFileName = Extensions.CombineWithValidate(source.Artist, source.Album, source.FileInformation.Name.Replace(source.FileInformation.Extension, "") + ".mp3");
 #endif
                 if (outputFileName.Length > 200)
                 {
@@ -140,6 +151,13 @@ namespace PlaylistToMp3__WF_
                 //    cnt++;
                 //}
                 output.Directory.Create();
+                if (MusicFile.CompareBitRate(source, mp3Args.isVariable?(int)cmbMinBR.SelectedItem:(int)cmbPresets.SelectedItem))
+                {
+                    log(source.ShortFileName + " has lower bitrate than minimum.", "Copying directly to output");
+                    source.FileInformation.CopyTo(output.FullName);
+                    source.isConverted = true;
+                    continue;
+                }
 
                 #endregion IMPLEMENT_MESSAGEBOX
 

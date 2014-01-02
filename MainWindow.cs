@@ -70,7 +70,10 @@ namespace PlaylistToMp3__WF_
             //MessageBox.Show("Converted File!");
 
             pgrConvert.Value++;
+            if(pgrConvert.Value!=playlist.Count)
             tslblStatus.Text = "Converting (" + pgrConvert.Value + "/" + playlist.Count + ").";
+            else
+                tslblStatus.Text = "Conversion of " + pgrConvert.Value + " items completed.";
         }
 
         private void convertingProcess(object sender, DoWorkEventArgs e)
@@ -85,6 +88,19 @@ namespace PlaylistToMp3__WF_
                 BackgroundWorker origin = sender as BackgroundWorker;
                 int progress = System.Convert.ToInt32(eargs.Progress * 100);
                 origin.ReportProgress(progress);
+            };
+            mFFmepg.Converter.MessageReceived += (send, eargs) => {
+                if (eargs.isError)
+                {
+                    setStatus("FFmpeg error: " + eargs.Message);
+                    log("FFmpeg error: " + eargs.Message);
+                }
+                else
+                {
+#if(DEBUG)
+                    log("FFmpeg message: " + eargs.Message);
+#endif
+                }
             };
             e.Result = mFFmepg.Converter.ToMp3(Argument.Input.FileInformation, Argument.Output, Argument.Arguments);
             //txtLog.Text+=(mFFmepg.Converter.LastError);
@@ -128,6 +144,7 @@ namespace PlaylistToMp3__WF_
                         log("CBR option selected.");
                         cmbPresets.DataSource = Extensions.CBR;
                         cmbPresets.SelectedItem = Extensions.CBR.Last();
+                        cmbMinBR.Enabled = false;
                         Program_Settings.Default.isVariable = false;
                         break;
 
@@ -135,6 +152,7 @@ namespace PlaylistToMp3__WF_
                         log("VBR option selected.");
                         cmbPresets.DataSource = Extensions.VBR;
                         cmbPresets.SelectedIndex = 2;
+                        cmbMinBR.Enabled = true;
                         Program_Settings.Default.isVariable = true;
                         break;
 
@@ -151,14 +169,7 @@ namespace PlaylistToMp3__WF_
             {
                 log("Playlist loader error: " + EventArg.Error);
                 //Dirty hack to cross thread execution
-                if (txtLog.InvokeRequired)
-                {
-                    txtLog.BeginInvoke((MethodInvoker)delegate()
-                    {
-                        tslblStatus.Text = "Playlist loader error";
-                    });
-                }
-                else tslblStatus.Text = "Playlist loader error";
+                setStatus("Playlist loader error");
             };
             PlaylistLoader.Log += (EventArg) =>
             {
@@ -175,10 +186,14 @@ namespace PlaylistToMp3__WF_
             int per_minbitrate = Program_Settings.Default.MinBitrate;
             if (Program_Settings.Default.isVariable)
             {
+                rdbVBR.Checked=true;
+                rdbCBR.Checked = false;
                 cmbPresets.DataSource = Extensions.VBR;
             }
             else
             {
+                rdbVBR.Checked = false;
+                rdbCBR.Checked = true;
                 cmbPresets.DataSource = Extensions.CBR;
             }
 
