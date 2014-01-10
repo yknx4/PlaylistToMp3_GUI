@@ -66,13 +66,13 @@ namespace PlaylistToMp3__WF_
                     BindingListView<MusicFile> view = new BindingListView<MusicFile>(playlist);
                     dtgrPlaylist.DataSource = view;
 
-                    tslblStatus.Text = playlist.Count + " song loaded.";
+                    setStatus( playlist.Count + " song loaded.");
                     log(playlist.Count + " song loaded.");
                     PlaylistPath = new FileInfo(inputFileName);
                 }
                 else
                 {
-                    tslblStatus.Text = inputFileName + " failed to load loaded.";
+                    setStatus( inputFileName + " failed to load loaded.");
                     log(inputFileName + " failed to load loaded.");
                 }
             };
@@ -151,7 +151,7 @@ namespace PlaylistToMp3__WF_
                 //    cnt++;
                 //}
                 output.Directory.Create();
-                if (MusicFile.CompareBitRate(source, mp3Args.isVariable?(int)cmbMinBR.SelectedItem:(int)cmbPresets.SelectedItem))
+                if (source.Format==".mp3" && MusicFile.CompareBitRate(source, mp3Args.isVariable?(int)cmbMinBR.SelectedItem:(int)cmbPresets.SelectedItem))
                 {
                     log(source.ShortFileName + " has lower bitrate than minimum.", "Copying directly to output");
                     source.FileInformation.CopyTo(output.FullName);
